@@ -2,6 +2,10 @@ local storedPlayerNames = {}
 
 RegisterNetEvent('pn-impound:server:impoundVehicle', function(netId, plate)
     local src = source
+    local playerJob = Framework.GetPlayerJobName(src)
+    print(Config.CanImpoundVehicle[playerJob])
+    if not Config.CanImpoundVehicle[playerJob] then return DropPlayer(src, "cheater!") end
+
     local rows = MySQL.update.await(Framework.IMPOUND_VEHICLE_QUERY, { plate })
     if not Config.CanImpoundUnownedVehicles and rows == 0 then
         return TriggerClientEvent('pn-impound:notify', src, Config.Translation["cannot_impound_unowned_vehicles"],
@@ -13,9 +17,10 @@ RegisterNetEvent('pn-impound:server:impoundVehicle', function(netId, plate)
     TriggerClientEvent('pn-impound:notify', src, Config.Translation["vehicle_impounded_successfully"], "success")
 end)
 
-lib.callback.register("pn-impound:server:unimpoundVehicle", function(source, plate, props)
+RegisterNetEvent("pn-impound:server:unimpoundVehicle", function(plate, props)
     local src = source
     local rows = MySQL.update.await(Framework.UNIMPOUND_VEHICLE_QUERY, { plate })
+    
     if rows > 0 then
         if Config.SpawnVehicle then
             local model = type(props.model) == "string" and GetHashKey(props.model) or props.model
@@ -23,7 +28,8 @@ lib.callback.register("pn-impound:server:unimpoundVehicle", function(source, pla
             local netId = NetworkGetNetworkIdFromEntity(vehicle)
             TriggerClientEvent("pn-impound:client:setProperties", src, netId, props)
         end
-        return TriggerClientEvent('pn-impound:notify', src, Config.Translation["vehicle_unimpounded_successfully"]:format(plate), "success")
+        return TriggerClientEvent('pn-impound:notify', src,
+            Config.Translation["vehicle_unimpounded_successfully"]:format(plate), "success")
     end
 
     return TriggerClientEvent('pn-impound:notify', src, Config.Translation["vehicle_unimpounded_error"]:format(plate),

@@ -41,7 +41,7 @@ function OpenComputerMainMenu(filter)
                 icon = "car",
                 arrow = true,
                 onSelect = function()
-                    lib.callback.await("pn-impound:server:unimpoundVehicle", false, data.plate, props)
+                    TriggerServerEvent("pn-impound:server:unimpoundVehicle", data.plate, props)
                 end,
                 metadata = {
                     { label = translation["owner"], value = storedPlayerNames[data.owner] },
