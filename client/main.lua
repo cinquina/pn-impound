@@ -6,14 +6,20 @@ CreateThread(function()
 end)
 
 AddEventHandler(Framework.LOADED_EVENT, function()
-    LoadMarkers(Framework.GetPlayerJob().name)
+    local job = Framework.GetPlayerJob()
+    if job then
+        LoadMarkers(job.name)
+    end
 end)
 
 RegisterNetEvent(Framework.JOB_CHANGE_EVENT, function()
-    LoadMarkers(Framework.GetPlayerJob().name)
+    local job = Framework.GetPlayerJob()
+    if job then
+        LoadMarkers(job.name)
+    end
 end)
 
-RegisterNetEvent('pn-impound:client:setProperties', function (vehicle, props)
+RegisterNetEvent('pn-impound:client:setProperties', function(vehicle, props)
     while not DoesEntityExist(NetworkGetEntityFromNetworkId(vehicle)) do
         Wait(500)
     end
