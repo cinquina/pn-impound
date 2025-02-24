@@ -2,17 +2,15 @@ local storedPlayerNames = {}
 
 RegisterNetEvent('pn-impound:server:impoundVehicle', function(netId, plate)
     local src = source
+    local entity = NetworkGetEntityFromNetworkId(netId)
     local playerJob = Framework.GetPlayerJobName(src)
-    print(Config.CanImpoundVehicle[playerJob])
     if not Config.CanImpoundVehicle[playerJob] then return DropPlayer(src, "cheater!") end
 
     local rows = MySQL.update.await(Framework.IMPOUND_VEHICLE_QUERY, { plate })
     if not Config.CanImpoundUnownedVehicles and rows == 0 then
-        return TriggerClientEvent('pn-impound:notify', src, Config.Translation["cannot_impound_unowned_vehicles"],
-            "error")
+        return TriggerClientEvent('pn-impound:notify', src, Config.Translation["cannot_impound_unowned_vehicles"], "error")
     end
 
-    local entity = NetworkGetEntityFromNetworkId(netId)
     DeleteEntity(entity)
     TriggerClientEvent('pn-impound:notify', src, Config.Translation["vehicle_impounded_successfully"], "success")
 end)
